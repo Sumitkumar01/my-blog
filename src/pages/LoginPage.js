@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 
 export const LoginPage = () => {
@@ -38,7 +38,7 @@ export const LoginPage = () => {
         onChange={e => setPassword(e.target.value)}
     />
     <button onClick={logIn}>Log In</button>
-    <Link to='/crete-account'>Create account?click hear</Link>
+    <Link to='/create-account'>Create account?click hear</Link>
     </>
   )
 }

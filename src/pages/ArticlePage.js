@@ -1,33 +1,42 @@
 import React from 'react';
 import { useState,useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { NotFoundPage } from './NotFoundPage';
 import { CommentsList } from '../components/CommentsList';
 import articles from './article-content';
 import { AddCommentsForm } from '../components/AddCommentsForm';
-import { useUser } from '../hooks/useUser';
+import  useUser  from '../hooks/useUser';
 
 
 export const ArticlePage = () => {
 
-  const [articleInfo, setArticleInfo] = useState({ upvote: 0, comments: []});
+  const [articleInfo, setArticleInfo] = useState({ upvote: 0, comments: [],canUpvote:
+    false});
+  const { canUpvote } = articleInfo;
   const { articleId } = useParams();
 
   const {user, isLoding}=useUser();
 
   useEffect(() => {
     const loadArticleInfo = async () => {
-      const response = await axios.get(`/api/articles/${articleId}`);
+      const token = user && await user.getIdToken();
+      const headers = token ? { authtoken: token }:{};
+      const response = await axios.get(`/api/articles/${articleId}`,{ headers });
       const newArticleInfo = response.data;
       setArticleInfo(newArticleInfo);
     }
-    loadArticleInfo();
-  }, [articleId]);
+    if(!isLoding){
+      loadArticleInfo();
+    }
+    
+  }, [isLoding,user]);
   const article = articles.find(article => article.name === articleId);
 
   const addUpvote = async () =>{
-    const response = await axios.put(`/api/articles/${articleId}/upvote`);
+    const token = user && await user.getIdToken();
+    const headers = token ? { authtoken: token }:{};
+    const response = await axios.put(`/api/articles/${articleId}/upvote`,null,{headers });
     const updatedArticle = response.data;
     setArticleInfo(updatedArticle);
   }
@@ -39,8 +48,9 @@ export const ArticlePage = () => {
     <>
       <h1>{article.title}</h1>
       <div className='upvotes-section'>
-        {user ?<button onClick={addUpvote}>Upvote</button>
-        :<button>Log in</button>}
+        {user 
+        ?<button onClick={addUpvote}>{canUpvote ? 'Upvote' : 'Alredy upvoted'}</button>
+        :<Link to='/login'><button>Log in</button></Link>}
         <p>This article has {articleInfo.upvote} upvote(s)</p>
       </div>
       
